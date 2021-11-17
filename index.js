@@ -42,6 +42,22 @@ async function run() {
             res.json(result);
         });
 
+        // Admin Checking 
+        app.post('/isAdmin', async (req, res) => {
+            console.log('Hitting the post', req.body);
+            const query = { email: `${req.body.email}` };
+            const result = await usersCollection.findOne(query);
+            console.log(result);
+
+            if (result?.role === 'admin') {
+                res.json({ isAdmin: true });
+            }
+            else {
+
+                res.json({ isAdmin: false });
+            }
+        })
+
 
     }
     finally {
