@@ -20,6 +20,29 @@ async function run() {
         await client.connect();
         console.log('Database connected!');
 
+        // Database and Collections 
+        const database = client.db('carz_zone');
+        const productsCollection = database.collection('products');
+        const usersCollection = database.collection('users');
+
+        // Read Operations 
+        app.get('/products', async (req, res) => {
+            console.log('Hitting products...')
+            const cursor = await productsCollection.find({}).toArray();
+            // console.log(cursor);
+            res.send(cursor);
+        });
+
+        // Add a User 
+        app.post('/users', async (req, res) => {
+            console.log('Hitting the post', req.body);
+            const newUser = req.body;
+            const result = await usersCollection.insertOne(newUser);
+            console.log(result);
+            res.json(result);
+        });
+
+
     }
     finally {
         // await client.close();
