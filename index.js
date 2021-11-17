@@ -36,10 +36,15 @@ async function run() {
         // Add a User 
         app.post('/users', async (req, res) => {
             console.log('Hitting the post', req.body);
-            const newUser = req.body;
-            const result = await usersCollection.insertOne(newUser);
-            console.log(result);
-            res.json(result);
+            const query = { email: `${req.body.email}` };
+            const result = await usersCollection.findOne(query);
+
+            if (result === null) {
+                const newUser = req.body;
+                const insertResult = await usersCollection.insertOne(newUser);
+                console.log(insertResult);
+                res.json(insertResult);
+            }
         });
 
         // Admin Checking 
