@@ -136,6 +136,32 @@ async function run() {
             }
         });
 
+        // Making Admin Process 
+        app.put('/makeAdmin', verifyToken, async (req, res) => {
+            const newAdminEmail = req.body?.email;
+            const filter = { email: `${newAdminEmail}` };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    role: 'admin'
+                },
+            };
+
+            // Admin Checking 
+            const email = req.query?.email;
+            const query = { email: `${email}` };
+            const result = await usersCollection.findOne(query);
+
+            if ((req.decodedUserEmail === email) && (result?.role === 'admin')) {
+                const updateResult = await usersCollection.updateOne(filter, updateDoc, options);
+                console.log(updateResult);
+                res.json(updateResult);
+            }
+            else {
+                req.status(401).json({ message: 'User not authorized' });
+            }
+        });
+
 
     }
     finally {
