@@ -1,5 +1,5 @@
 const express = require('express');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectID } = require('mongodb');
 const cors = require('cors');
 var admin = require("firebase-admin");
 require('dotenv').config();
@@ -29,7 +29,7 @@ const verifyToken = async (req, res, next) => {
 
         try {
             const decodedUser = await admin.auth().verifyIdToken(idToken);
-            console.log(decodedUser);
+            // console.log(decodedUser);
             req.decodedUserEmail = decodedUser.email;
         }
         catch {
@@ -103,6 +103,33 @@ async function run() {
                 console.log(insertResult);
                 res.json(insertResult);
 
+            }
+            else {
+                req.status(401).json({ message: 'User not authorized' });
+            }
+        });
+
+        // Update Product Status 
+        app.put('/updateProduct', verifyToken, async (req, res) => {
+            const id = req.body?._id;
+            const status = req.body?.status;
+            const filter = { _id: ObjectID(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    status: `${status}`
+                },
+            };
+
+            // Admin Checking 
+            const email = req.query?.email;
+            const query = { email: `${email}` };
+            const result = await usersCollection.findOne(query);
+
+            if ((req.decodedUserEmail === email) && (result?.role === 'admin')) {
+                const updateResult = await productsCollection.updateOne(filter, updateDoc, options);
+                console.log(updateResult);
+                res.json(updateResult);
             }
             else {
                 req.status(401).json({ message: 'User not authorized' });
