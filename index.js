@@ -53,7 +53,7 @@ async function run() {
 
         // Read All Products 
         app.get('/products', async (req, res) => {
-            console.log('Hitting products...')
+            // console.log('Hitting products...')
             const cursor = await productsCollection.find({}).toArray();
             // console.log(cursor);
             res.send(cursor);
@@ -110,7 +110,7 @@ async function run() {
         });
 
         // Update Product Status 
-        app.put('/updateProduct', verifyToken, async (req, res) => {
+        app.delete('/updateProduct', verifyToken, async (req, res) => {
             const id = req.body?._id;
             const status = req.body?.status;
             const filter = { _id: ObjectID(id) };
@@ -130,6 +130,26 @@ async function run() {
                 const updateResult = await productsCollection.updateOne(filter, updateDoc, options);
                 console.log(updateResult);
                 res.json(updateResult);
+            }
+            else {
+                req.status(401).json({ message: 'User not authorized' });
+            }
+        });
+
+        // Delete Product 
+        app.put('/deleteProduct', verifyToken, async (req, res) => {
+            const id = req.body?._id;
+            const filter = { _id: ObjectID(id) };
+
+            // Admin Checking 
+            const email = req.query?.email;
+            const query = { email: `${email}` };
+            const result = await usersCollection.findOne(query);
+
+            if ((req.decodedUserEmail === email) && (result?.role === 'admin')) {
+                const deleteResult = await productsCollection.deleteOne(filter);
+                console.log(deleteResult);
+                res.json(deleteResult);
             }
             else {
                 req.status(401).json({ message: 'User not authorized' });
