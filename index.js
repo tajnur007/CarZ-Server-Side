@@ -50,11 +50,20 @@ async function run() {
         const database = client.db('carz_zone');
         const productsCollection = database.collection('products');
         const usersCollection = database.collection('users');
+        const reviewsCollection = database.collection('reviews');
 
-        // Read All Products 
+        // Get All Products 
         app.get('/products', async (req, res) => {
             // console.log('Hitting products...')
             const cursor = await productsCollection.find({}).toArray();
+            // console.log(cursor);
+            res.send(cursor);
+        });
+
+        // Get All Reviews 
+        app.get('/reviews', async (req, res) => {
+            // console.log('Hitting products...')
+            const cursor = await reviewsCollection.find({}).toArray();
             // console.log(cursor);
             res.send(cursor);
         });
