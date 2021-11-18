@@ -49,6 +49,7 @@ async function run() {
         // Database and Collections 
         const database = client.db('carz_zone');
         const productsCollection = database.collection('products');
+        const ordersCollection = database.collection('orders');
         const usersCollection = database.collection('users');
         const reviewsCollection = database.collection('reviews');
 
@@ -105,6 +106,22 @@ async function run() {
                 const insertResult = await usersCollection.insertOne(newUser);
                 console.log(insertResult);
                 res.json(insertResult);
+            }
+        });
+
+        // Add an Order 
+        app.post('/addOrder', verifyToken, async (req, res) => {
+            const email = req.query?.email;
+
+            if (req.decodedUserEmail === email) {
+                // console.log('Hitting the post', req.body);
+                const newOrder = req.body;
+                const insertResult = await ordersCollection.insertOne(newOrder);
+                console.log(insertResult);
+                res.json(insertResult);
+            }
+            else {
+                req.status(401).json({ message: 'User not authorized' });
             }
         });
 
