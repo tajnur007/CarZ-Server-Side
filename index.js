@@ -60,6 +60,16 @@ async function run() {
             res.send(cursor);
         });
 
+        // Get Single Product 
+        app.get('/products/:id', async (req, res) => {
+            // console.log('Hitting products...')
+            const id = req.params.id;
+            const query = { _id: ObjectID(id) };
+            const result = await productsCollection.findOne(query);
+            // console.log(cursor);
+            res.send(result);
+        });
+
         // Get All Reviews 
         app.get('/reviews', async (req, res) => {
             // console.log('Hitting products...')
