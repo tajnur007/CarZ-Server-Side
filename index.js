@@ -162,7 +162,7 @@ async function run() {
         });
 
         // Update Product Status 
-        app.delete('/updateProduct', verifyToken, async (req, res) => {
+        app.put('/updateProduct', verifyToken, async (req, res) => {
             const id = req.body?._id;
             const status = req.body?.status;
             const filter = { _id: ObjectID(id) };
@@ -188,8 +188,35 @@ async function run() {
             }
         });
 
+        // Update Order Status 
+        app.put('/updateOrder', verifyToken, async (req, res) => {
+            const id = req.body?._id;
+            const status = req.body?.status;
+            const filter = { _id: ObjectID(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    status: `${status}`
+                },
+            };
+
+            // Admin Checking 
+            const email = req.query?.email;
+            const query = { email: `${email}` };
+            const result = await usersCollection.findOne(query);
+
+            if ((req.decodedUserEmail === email) || (result?.role === 'admin')) {
+                const updateResult = await ordersCollection.updateOne(filter, updateDoc, options);
+                console.log(updateResult);
+                res.json(updateResult);
+            }
+            else {
+                req.status(401).json({ message: 'User not authorized' });
+            }
+        });
+
         // Delete Product 
-        app.put('/deleteProduct', verifyToken, async (req, res) => {
+        app.delete('/deleteProduct', verifyToken, async (req, res) => {
             const id = req.body?._id;
             const filter = { _id: ObjectID(id) };
 
