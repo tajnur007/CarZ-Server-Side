@@ -79,6 +79,22 @@ async function run() {
             res.send(cursor);
         });
 
+        // Get My Orders 
+        app.get('/myOrders', verifyToken, async (req, res) => {
+            const email = req.query?.email;
+
+            if (req.decodedUserEmail === email) {
+                // console.log('Hitting the post', req.body);
+                const query = { receiverEmail: `${email}` };
+                const result = await ordersCollection.find(query).toArray();
+                console.log(result);
+                res.json(result);
+            }
+            else {
+                req.status(401).json({ message: 'User not authorized' });
+            }
+        });
+
         // Admin Checking 
         app.post('/isAdmin', async (req, res) => {
             console.log('Hitting the post', req.body);
