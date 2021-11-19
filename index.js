@@ -235,6 +235,26 @@ async function run() {
             }
         });
 
+        // Delete Order 
+        app.delete('/deleteOrder', verifyToken, async (req, res) => {
+            const id = req.body?._id;
+            const filter = { _id: ObjectID(id) };
+
+            // Admin Checking 
+            const email = req.query?.email;
+            const query = { email: `${email}` };
+            const result = await usersCollection.findOne(query);
+
+            if ((req.decodedUserEmail === email) || (result?.role === 'admin')) {
+                const deleteResult = await ordersCollection.deleteOne(filter);
+                console.log(deleteResult);
+                res.json(deleteResult);
+            }
+            else {
+                req.status(401).json({ message: 'User not authorized' });
+            }
+        });
+
         // Making Admin Process 
         app.put('/makeAdmin', verifyToken, async (req, res) => {
             const newAdminEmail = req.body?.email;
