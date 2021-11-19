@@ -8,7 +8,7 @@ const app = express();
 const port = process.env.PORT || 7007;
 
 // Firebase Admin Initialization 
-var serviceAccount = require('./carz-zone-69e6b-firebase-adminsdk-b4cob-02175f4c5a.json');
+var serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
@@ -91,7 +91,23 @@ async function run() {
                 res.json(result);
             }
             else {
-                req.status(401).json({ message: 'User not authorized' });
+                res.status(401).json({ message: 'User not authorized' });
+            }
+        });
+
+        // Get All Orders 
+        app.get('/orders', verifyToken, async (req, res) => {
+            const email = req.query?.email;
+            const query = { email: `${email}` };
+            const result = await usersCollection.findOne(query);
+
+            if ((req.decodedUserEmail === email) && (result?.role === 'admin')) {
+                const searchResult = await ordersCollection.find({}).toArray();
+                console.log(searchResult);
+                res.json(searchResult);
+            }
+            else {
+                res.status(401).json({ message: 'User not authorized' });
             }
         });
 
@@ -137,7 +153,7 @@ async function run() {
                 res.json(insertResult);
             }
             else {
-                req.status(401).json({ message: 'User not authorized' });
+                res.status(401).json({ message: 'User not authorized' });
             }
         });
 
@@ -157,7 +173,7 @@ async function run() {
 
             }
             else {
-                req.status(401).json({ message: 'User not authorized' });
+                res.status(401).json({ message: 'User not authorized' });
             }
         });
 
@@ -174,7 +190,7 @@ async function run() {
 
             }
             else {
-                req.status(401).json({ message: 'User not authorized' });
+                res.status(401).json({ message: 'User not authorized' });
             }
         });
 
@@ -201,7 +217,7 @@ async function run() {
                 res.json(updateResult);
             }
             else {
-                req.status(401).json({ message: 'User not authorized' });
+                res.status(401).json({ message: 'User not authorized' });
             }
         });
 
@@ -228,7 +244,7 @@ async function run() {
                 res.json(updateResult);
             }
             else {
-                req.status(401).json({ message: 'User not authorized' });
+                res.status(401).json({ message: 'User not authorized' });
             }
         });
 
@@ -248,7 +264,7 @@ async function run() {
                 res.json(deleteResult);
             }
             else {
-                req.status(401).json({ message: 'User not authorized' });
+                res.status(401).json({ message: 'User not authorized' });
             }
         });
 
@@ -268,7 +284,7 @@ async function run() {
                 res.json(deleteResult);
             }
             else {
-                req.status(401).json({ message: 'User not authorized' });
+                res.status(401).json({ message: 'User not authorized' });
             }
         });
 
@@ -294,7 +310,7 @@ async function run() {
                 res.json(updateResult);
             }
             else {
-                req.status(401).json({ message: 'User not authorized' });
+                res.status(401).json({ message: 'User not authorized' });
             }
         });
 
