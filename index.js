@@ -161,6 +161,23 @@ async function run() {
             }
         });
 
+        // Add a Review 
+        app.post('/addReview', verifyToken, async (req, res) => {
+            const email = req.query?.email;
+
+            if (req.decodedUserEmail === email) {
+                // console.log('Hitting the post', req.body);
+                const newReview = req.body;
+                const insertResult = await reviewsCollection.insertOne(newReview);
+                console.log(insertResult);
+                res.json(insertResult);
+
+            }
+            else {
+                req.status(401).json({ message: 'User not authorized' });
+            }
+        });
+
         // Update Product Status 
         app.put('/updateProduct', verifyToken, async (req, res) => {
             const id = req.body?._id;
